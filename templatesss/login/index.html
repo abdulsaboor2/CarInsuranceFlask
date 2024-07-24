@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    {% load static %}
+  <meta charset="UTF-8">
+  <title>SLAYS - Log in and sign up form</title>
+  <link rel="stylesheet" href="{% static './style.css' %}">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+      <!--Data or Content-->
+      <div class="box-1">
+          <div class="content-holder">
+              <h2>Hello!</h2>
+             
+              <button class="button-1" onclick="signup()">Sign up</button>
+              <button class="button-2" onclick="login()">Login</button>
+          </div>
+      </div>
+
+      
+      <!--Forms-->
+      <div class="box-2">
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+
+          <div class="login-form-container">
+              <h1>Login Form</h1>
+              <input type="text" name="username" placeholder="Username" class="input-field">
+              <br><br>
+              <input type="password" name="password" placeholder="Password" class="input-field">
+              <br><br>
+              <button class="login-button" type="submit">Login</button>
+            </form>
+          </div>
+
+
+<!--Create Container for Signup form-->
+<div class="signup-form-container">
+          <form action="{% url 'signup' %}" method="post">
+              {% csrf_token %}
+          <h1>Sign Up Form</h1>
+          <input type="text" name="name" placeholder="Name" class="input-field">
+          <br><br>
+          <input type="text" name="username" placeholder="Username" class="input-field">
+          <br><br>
+          <input type="email" name="email" placeholder="Email" class="input-field">
+          <br><br>
+          <input type="password" name="password" placeholder="Password" class="input-field">
+          <br><br>
+          <button class="signup-button" type="submit">Sign Up</button>
+        </form>
+      </div>
+
+
+
+      </div>
+<!-- partial -->
+  <script  src="{% static './script.js' %}"></script>
+
+</body>
+</html>

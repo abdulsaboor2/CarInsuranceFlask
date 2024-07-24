@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Policy - Car Insurance Company</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Car Insurance Company</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/faq">FAQ</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="/claim_policy">Claims Policy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main class="container mt-5">
+        <h1 class="mb-4 text-center">Claims Policy</h1>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">Filing a Claim</h2>
+            </div>
+            <div class="card-body">
+                <p>If you need to file a claim, please follow these steps:</p>
+                <ol>
+                    <li>Contact our claims department as soon as possible after the incident.</li>
+                    <li>Provide your policy number, details of the incident, and any other required information.</li>
+                    <li>Submit any necessary documents, such as police reports, photos, and repair estimates.</li>
+                    <li>Work with our claims adjuster to assess the damage and process your claim.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">Claims Process</h2>
+            </div>
+            <div class="card-body">
+                <p>Our claims process is designed to be as smooth and efficient as possible. Here’s what you can expect:</p>
+                <ul>
+                    <li>Initial Contact: Our claims representative will contact you within 24 hours to discuss your claim and next steps.</li>
+                    <li>Assessment: A claims adjuster will evaluate the damage and determine the extent of coverage.</li>
+                    <li>Resolution: Once the assessment is complete, we will work with you to repair or replace your vehicle and settle any other covered expenses.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">Policy Coverage</h2>
+            </div>
+            <div class="card-body">
+                <p>Our car insurance policies cover a wide range of incidents, including:</p>
+                <ul>
+                    <li>Accidents</li>
+                    <li>Theft</li>
+                    <li>Vandalism</li>
+                    <li>Natural disasters</li>
+                    <li>Third-party liability</li>
+                </ul>
+                <p>For detailed information about what is covered under your specific policy, please refer to your policy documents or contact our customer service team.</p>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">Contact Information</h2>
+            </div>
+            <div class="card-body">
+                <p>If you have any questions about filing a claim or the claims process, please contact us:</p>
+                <ul>
+                    <li>Phone: 1-800-123-4567</li>
+                    <li>Email: claims@carinsurancecompany.com</li>
+                    <li>Address: 123 Main Street, Suite 100, Anytown, USA</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    <footer class="footer mt-5 py-3 bg-dark text-white">
+        <div class="container text-center">
+            <span>© 2024 Car Insurance Company. All rights reserved.</span>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
