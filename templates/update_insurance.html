@@ -1,49 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Insurance - SLAYS Insurance Ltd.</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Update Insurance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">SLAYS Insurance Ltd</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-            </ul>
+    <h1>Update Insurance</h1>
+    <form method="POST" action="{{ url_for('update_insurance', insurance_id=insurance.id) }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.insurance_type.label }}<br>
+            {{ form.insurance_type() }}
         </div>
-    </nav>
-    <div class="container mt-5">
-        <h2>Update Insurance</h2>
-        <form action="{{ url_for('update_insurance', insurance_id=insurance.id) }}" method="POST">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.insurance_type.label(class="form-label") }}
-                {{ form.insurance_type(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.start_date.label(class="form-label") }}
-                {{ form.start_date(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.end_date.label(class="form-label") }}
-                {{ form.end_date(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.premium_amount.label(class="form-label") }}
-                {{ form.premium_amount(class="form-control") }}
-            </div>
-            <button type="submit" class="btn btn-primary">Update Insurance</button>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+        <div>
+            {{ form.start_date.label }}<br>
+            {{ form.start_date() }}
+        </div>
+        <div>
+            {{ form.end_date.label }}<br>
+            {{ form.end_date() }}
+        </div>
+        <div>
+            {{ form.premium_amount.label }}<br>
+            {{ form.premium_amount() }}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
 </body>
 </html>

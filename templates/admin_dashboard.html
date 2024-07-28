@@ -28,8 +28,11 @@
                 <!-- Add actions for managing users if needed -->
             </td>
         </tr>
+
         {% endfor %}
     </tbody>
 </table>
+<a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+
 </body>
 </html>
