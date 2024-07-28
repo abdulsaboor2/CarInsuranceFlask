@@ -1,0 +1,34 @@
+<header class="site-navbar bg-dark text-white py-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-6 col-xl-4">
+                <h1 class="mb-0 site-logo">
+                    <a href="{{ url_for('index') }}" class="h2 mb-0 text-white">SLAYS Insurance Ltd<span class="text-primary">.</span></a>
+                </h1>
+            </div>
+            <div class="col-12 col-xl-8">
+                <nav class="navbar navbar-expand-xl navbar-dark">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item"><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                            <li class="nav-item"><a href="{{ url_for('about') }}" class="nav-link">About Us</a></li>
+                            <li class="nav-item"><a href="{{ url_for('contact') }}" class="nav-link">Contact</a></li>
+                            <li class="nav-item"><a href="/track" class="nav-link">Track</a></li>
+                            <li class="nav-item"><a href="/apply" class="nav-link">Apply for Insurance</a></li>
+                            {% if current_user.is_authenticated %}
+                                <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+                                <li class="nav-item"><a href="/dashboard" class="nav-link">Dashboard</a></li>
+                            {% else %}
+                                <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
+                                <li class="nav-item"><a href="/register" class="nav-link">SignUp</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
