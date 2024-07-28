@@ -6,7 +6,7 @@ from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SubmitField, DateField
+from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo
 
 app = Flask(__name__)
@@ -46,10 +46,9 @@ class Contact(db.Model):
 
     def __repr__(self):
         return f'<Contact {self.email}>'
-    
-    # Add this to your app.py file
 
-class InsuranceForm(db.Model):
+# InsuranceClaim model
+class InsuranceClaim(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
@@ -63,10 +62,10 @@ class InsuranceForm(db.Model):
     policy_start_date = db.Column(db.Date, nullable=False)
     additional_info = db.Column(db.Text, nullable=True)
 
-    user = db.relationship('User', backref=db.backref('insurance_forms', lazy=True))
+    user = db.relationship('User', backref=db.backref('insurance_claims', lazy=True))
 
     def __repr__(self):
-        return f'<InsuranceForm {self.full_name}>'
+        return f'<InsuranceClaim {self.full_name}>'
 
 
 @login_manager.user_loader
@@ -172,7 +171,7 @@ admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
 admin.add_view(MyModelView(Record, db.session))
 admin.add_view(MyModelView(Contact, db.session))
 admin.add_view(MyModelView(User, db.session))  # Added User model to the admin view
-admin.add_view(MyModelView(InsuranceForm, db.session))
+admin.add_view(MyModelView(InsuranceClaim, db.session))  # Updated to InsuranceClaim
 
 class ContactForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
@@ -222,7 +221,7 @@ def faq():
 def new_insurance():
     form = InsuranceForm()
     if form.validate_on_submit():
-        new_form = InsuranceForm(
+        new_claim = InsuranceClaim(
             user_id=current_user.id,
             full_name=form.full_name.data,
             email=form.email.data,
@@ -235,7 +234,7 @@ def new_insurance():
             policy_start_date=form.policy_start_date.data,
             additional_info=form.additional_info.data
         )
-        db.session.add(new_form)
+        db.session.add(new_claim)
         db.session.commit()
         flash('Insurance form submitted successfully!', 'success')
         return redirect(url_for('view_insurance'))
@@ -245,16 +244,16 @@ def new_insurance():
 @login_required
 def view_insurance():
     if current_user.is_admin:
-        forms = InsuranceForm.query.all()
+        forms = InsuranceClaim.query.all()
     else:
-        forms = InsuranceForm.query.filter_by(user_id=current_user.id).all()
+        forms = InsuranceClaim.query.filter_by(user_id=current_user.id).all()
     return render_template('view_insurance.html', forms=forms)
 
 @app.route('/insurance/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_insurance(id):
     form = InsuranceForm()
-    insurance_form = InsuranceForm.query.get_or_404(id)
+    insurance_form = InsuranceClaim.query.get_or_404(id)
     
     if insurance_form.user_id != current_user.id and not current_user.is_admin:
         flash('You are not authorized to edit this form.', 'danger')
@@ -292,7 +291,7 @@ def edit_insurance(id):
 @app.route('/insurance/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_insurance(id):
-    insurance_form = InsuranceForm.query.get_or_404(id)
+    insurance_form = InsuranceClaim.query.get_or_404(id)
     
     if insurance_form.user_id != current_user.id and not current_user.is_admin:
         flash('You are not authorized to delete this form.', 'danger')
@@ -303,11 +302,9 @@ def delete_insurance(id):
     flash('Insurance form deleted successfully!', 'success')
     return redirect(url_for('view_insurance'))
 
-
-
-
 if __name__ == '__main__':
     # Create database tables
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
