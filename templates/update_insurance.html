@@ -10,26 +10,111 @@
     <h1>Update Insurance</h1>
     <form method="POST" action="{{ url_for('update_insurance', insurance_id=insurance.id) }}">
         {{ form.hidden_tag() }}
-        <div>
-            {{ form.insurance_type.label }}<br>
-            {{ form.insurance_type() }}
+
+        <div class="form-section">
+            <h4>Personal Information</h4>
+            <div class="form-group">
+                <label for="name">Name</label>
+                {{ form.name(class_='form-control', placeholder='Name') }}
+            </div>
+            <div class="form-group">
+                <label for="dln">Driving Licence Number</label>
+                {{ form.dln(class_='form-control', placeholder='Driving Licence Number') }}
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email(class_='form-control', placeholder='Email') }}
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                {{ form.phone(class_='form-control', placeholder='Phone') }}
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                {{ form.dob(class_='form-control', placeholder='Date of Birth') }}
+            </div>
         </div>
-        <div>
-            {{ form.start_date.label }}<br>
-            {{ form.start_date() }}
+    
+        <div class="form-section">
+            <h4>Address</h4>
+            <div class="form-group">
+                <label for="address">Street</label>
+                {{ form.address(class_='form-control', placeholder='Street') }}
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                {{ form.city(class_='form-control', placeholder='City') }}
+            </div>
+            <div class="form-group">
+                <label for="postcode">Postcode</label>
+                {{ form.postcode(class_='form-control', placeholder='Postcode') }}
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                {{ form.country(class_='form-control', placeholder='Country') }}
+            </div>
         </div>
-        <div>
-            {{ form.end_date.label }}<br>
-            {{ form.end_date() }}
+    
+        <div class="form-section">
+            <h4>Vehicle Information</h4>
+            <div class="form-group">
+                <label for="car_model">Car Model</label>
+                {{ form.car_model(class_='form-control', placeholder='Car Model') }}
+            </div>
+            <div class="form-group">
+                <label for="car_reg">Car Registration Number</label>
+                {{ form.car_reg(class_='form-control', placeholder='Car Registration Number') }}
+            </div>
+            <div class="form-group">
+                <label for="policy_number">Policy Number</label>
+                {{ form.policy_number(class_='form-control', placeholder='Policy Number') }}
+            </div>
+            <div class="form-group">
+                <label for="insurance_type">Insurance Type</label>
+                {{ form.insurance_type(class_='form-control') }}
+            </div>
+            <div class="form-group">
+                <label for="policy_start_date">Policy Start Date</label>
+                {{ form.policy_start_date(class_='form-control', placeholder='Policy Start Date') }}
+            </div>
         </div>
-        <div>
-            {{ form.premium_amount.label }}<br>
-            {{ form.premium_amount() }}
+    
+        <div class="form-section">
+            <h4>Payment Information</h4>
+            <div class="form-group">
+                <label for="amount">Initial Amount</label>
+                {{ form.amount(class_='form-control', placeholder='Amount') }}
+            </div>
+            <div class="form-group">
+                <label for="card_name">Cardholder Name</label>
+                {{ form.card_name(class_='form-control', placeholder='Full Name') }}
+            </div>
+            <div class="form-group">
+                <label for="card_number">Card Number</label>
+                {{ form.card_number(class_='form-control', placeholder='1234 5678 8765 4321') }}
+            </div>
+            <div class="form-group">
+                <label for="exp_date">Expiry Date</label>
+                {{ form.exp_date(class_='form-control', placeholder='MM/YY') }}
+            </div>
+            <div class="form-group">
+                <label for="cvc">CVC</label>
+                {{ form.cvc(class_='form-control', placeholder='CVC') }}
+            </div>
         </div>
-        <div>
-            {{ form.submit() }}
+    
+        <div class="form-section">
+            <h4>Additional Information</h4>
+            <div class="form-group">
+                <label for="additional_info">Additional Information</label>
+                {{ form.additional_info(class_='form-control') }}
+            </div>
+        </div>
+    
+        <div class="text-center">
+            {{ form.submit(class_='btn btn-primary') }}
         </div>
     </form>
-    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="{{ url_for('view_insurance') }}" class="btn btn-secondary">Back to Insurance List</a>
 </body>
 </html>

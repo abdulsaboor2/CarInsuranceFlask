@@ -6,9 +6,8 @@ from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Email, EqualTo
-
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -52,42 +51,60 @@ class Contact(db.Model):
 class InsuranceClaim(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    full_name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    dln = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
-    phone_number = db.Column(db.String(15), nullable=False)
+    phone = db.Column(db.String(15), nullable=False)
+    dob = db.Column(db.Date, nullable=False)
     address = db.Column(db.String(200), nullable=False)
+    city = db.Column(db.String(100), nullable=False)
+    postcode = db.Column(db.String(20), nullable=False)
+    country = db.Column(db.String(100), nullable=False)
     car_model = db.Column(db.String(100), nullable=False)
-    license_plate = db.Column(db.String(50), nullable=False)
-    insurance_type = db.Column(db.String(50), nullable=False)
+    car_reg = db.Column(db.String(50), nullable=False)
     policy_number = db.Column(db.String(50), nullable=False)
+    insurance_type = db.Column(db.String(50), nullable=False)
     policy_start_date = db.Column(db.Date, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    card_name = db.Column(db.String(100), nullable=False)
+    card_number = db.Column(db.String(20), nullable=False)
+    exp_date = db.Column(db.String(7), nullable=False)
+    cvc = db.Column(db.String(4), nullable=False)
     additional_info = db.Column(db.Text, nullable=True)
 
-    user = db.relationship('User', backref=db.backref('insurance_claims', lazy=True))
-
     def __repr__(self):
-        return f'<InsuranceClaim {self.full_name}>'
+        return f'<InsuranceClaim {self.name}>'
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 class InsuranceForm(FlaskForm):
-    full_name = StringField('Full Name', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    dln = StringField('Driving Licence Number', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    phone_number = StringField('Phone Number', validators=[DataRequired()])
-    address = StringField('Address', validators=[DataRequired()])
+    phone = StringField('Phone', validators=[DataRequired()])
+    dob = DateField('Date of Birth', format='%Y-%m-%d', validators=[DataRequired()])
+    address = StringField('Street', validators=[DataRequired()])
+    city = StringField('City', validators=[DataRequired()])
+    postcode = StringField('Postcode', validators=[DataRequired()])
+    country = StringField('Country', validators=[DataRequired()])
     car_model = StringField('Car Model', validators=[DataRequired()])
-    license_plate = StringField('License Plate', validators=[DataRequired()])
-    insurance_type = SelectField('Type of Insurance', choices=[
-        ('comprehensive', 'Comprehensive'),
-        ('third-party', 'Third-Party'),
-        ('third-party-fire-theft', 'Third-Party, Fire and Theft')
-    ], validators=[DataRequired()])
+    car_reg = StringField('Car Registration Number', validators=[DataRequired()])
     policy_number = StringField('Policy Number', validators=[DataRequired()])
+    insurance_type = SelectField('Insurance Type', choices=[
+        ('comprehensive', 'Fully Comprehensive'),
+        ('third-party', 'Third Party'),
+        ('third-party-fire-theft', 'Third Party, Fire and Theft')
+    ], validators=[DataRequired()])
     policy_start_date = DateField('Policy Start Date', format='%Y-%m-%d', validators=[DataRequired()])
+    amount = IntegerField('Initial Amount', validators=[DataRequired()])
+    card_name = StringField('Cardholder Name', validators=[DataRequired()])
+    card_number = StringField('Card Number', validators=[DataRequired()])
+    exp_date = StringField('Expiry Date', validators=[DataRequired()])
+    cvc = StringField('CVC', validators=[DataRequired()])
     additional_info = TextAreaField('Additional Information')
-    submit = SubmitField('Submit')
+    submit = SubmitField('Agree and Send Application')
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -224,37 +241,42 @@ def faq():
 def new_insurance():
     form = InsuranceForm()
     if form.validate_on_submit():
-        # Creating a new insurance claim object with form data
         new_claim = InsuranceClaim(
             user_id=current_user.id,
-            full_name=current_user.username,
-            email=current_user.email,
-            phone_number=request.form['phone'],
-            address=request.form['address'],
-            car_model=request.form['car_model'],
-            license_plate=request.form['car_reg'],
+            name=form.name.data,
+            dln=form.dln.data,
+            email=form.email.data,
+            phone=form.phone.data,
+            dob=form.dob.data,
+            address=form.address.data,
+            city=form.city.data,
+            postcode=form.postcode.data,
+            country=form.country.data,
+            car_model=form.car_model.data,
+            car_reg=form.car_reg.data,
+            policy_number=form.policy_number.data,
             insurance_type=form.insurance_type.data,
-            policy_number=request.form['policy_number'],
-            policy_start_date=form.start_date.data,
-            additional_info=request.form.get('additional_info', '')  # Handle optional fields safely
+            policy_start_date=form.policy_start_date.data,
+            amount=form.amount.data,
+            card_name=form.card_name.data,
+            card_number=form.card_number.data,
+            exp_date=form.exp_date.data,
+            cvc=form.cvc.data,
+            additional_info=form.additional_info.data
         )
         try:
             db.session.add(new_claim)
             db.session.commit()
             flash('Insurance form submitted successfully!', 'success')
-            return redirect(url_for('view_insurance'))  # Redirect to another view upon success
+            return redirect(url_for('view_insurance'))
         except Exception as e:
-            db.session.rollback()  # Rollback the transaction on error
+            db.session.rollback()
             flash(f'Error submitting form: {e}', 'danger')
-            print(f'Error submitting form: {e}')
     else:
-        # Print validation errors for debugging
         print(form.errors)
         flash('Error in form submission', 'danger')
-    
-    return render_template('add_insurance.html', form=form)  # Render the form template
 
-
+    return render_template('add_insurance.html', form=form)
 
 @app.route('/insurance')
 @login_required
@@ -262,8 +284,8 @@ def view_insurance():
     if current_user.is_admin:
         forms = InsuranceClaim.query.all()
     else:
-        forms = InsuranceClaim.query.filter_by(user_id=current_user.id).all()
-    return render_template('view_insurance.html', forms=forms)
+        claims = InsuranceClaim.query.filter_by(user_id=current_user.id).all()
+    return render_template('view_insurance.html', claims=claims)
 
 @app.route('/insurance/<int:form_id>')
 @login_required
@@ -280,15 +302,31 @@ def update_insurance(insurance_id):
         return redirect(url_for('customer_dashboard'))
 
     form = InsuranceForm()
+
     if form.validate_on_submit():
         insurance.insurance_type = form.insurance_type.data
-        insurance.policy_start_date = form.start_date.data
+        insurance.policy_start_date = form.policy_start_date.data
+        insurance.amount = form.amount.data
+        insurance.card_name = form.card_name.data
+        insurance.card_number = form.card_number.data
+        insurance.exp_date = form.exp_date.data
+        insurance.cvc = form.cvc.data
+        insurance.additional_info = form.additional_info.data
+
         db.session.commit()
         flash('Insurance updated successfully!', 'success')
         return redirect(url_for('customer_dashboard'))
 
+    # Populate form fields with current data for editing
     form.insurance_type.data = insurance.insurance_type
-    form.start_date.data = insurance.policy_start_date
+    form.policy_start_date.data = insurance.policy_start_date
+    form.amount.data = insurance.amount
+    form.card_name.data = insurance.card_name
+    form.card_number.data = insurance.card_number
+    form.exp_date.data = insurance.exp_date
+    form.cvc.data = insurance.cvc
+    form.additional_info.data = insurance.additional_info
+
     return render_template('update_insurance.html', form=form, insurance=insurance)
 
 @app.route('/delete_insurance/<int:insurance_id>', methods=['POST'])
@@ -306,7 +344,6 @@ def delete_insurance(insurance_id):
 @app.route('/policy_claim')
 def policy_claim():
     return render_template('policy_claim.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)

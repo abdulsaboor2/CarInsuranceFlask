@@ -12,7 +12,7 @@ with app.app_context():
     from werkzeug.security import generate_password_hash
 
     # Add a test admin user
-    admin = User(username='admin', email='admin@example.com', password=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True)
+    admin = User(username='admin', email='admin@slys.com', password=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True)
     db.session.add(admin)
 
     # Add a test normal user
