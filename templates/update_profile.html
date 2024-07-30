@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Insurance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .form-section {
+            background: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 5px;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <header class="site-navbar bg-dark text-white py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-6 col-xl-4">
+                    <h1 class="mb-0 site-logo">
+                        <a href="/" class="h2 mb-0 text-white">SLAYS Insurance Ltd<span class="text-primary">.</span></a>
+                    </h1>
+                </div>
+                <div class="col-12 col-xl-8">
+                    <nav class="navbar navbar-expand-xl navbar-dark">
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav ml-auto">
+                                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+                                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
+                                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                                <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
+                                <li class="nav-item"><a href="/insurance/new" class="nav-link">Apply for Insurance</a></li>
+                                <li class="nav-item"><a href="/insurance" class="nav-link">View Insurance</a></li>
+                                {% if current_user.is_authenticated %}
+                                    <li class="nav-item"><a href="/claim_policy" class="nav-link">Claim Policy</a></li>
+                                    <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+                                {% else %}
+                                    <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
+                                    <li class="nav-item"><a href="/register" class="nav-link">Sign Up</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <h1>Update Insurance</h1>
+    <form method="POST" action="{{ url_for('update_insurance', insurance_id=insurance.id) }}">
+        {{ form.hidden_tag() }}
+
+        <div class="form-section">
+            <h4>Personal Information</h4>
+            <div class="form-group">
+                <label for="name">Name</label>
+                {{ form.name(class_='form-control', placeholder='Name') }}
+            </div>
+            <div class="form-group">
+                <label for="dln">Driving Licence Number</label>
+                {{ form.dln(class_='form-control', placeholder='Driving Licence Number') }}
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email(class_='form-control', placeholder='Email') }}
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                {{ form.phone(class_='form-control', placeholder='Phone') }}
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                {{ form.dob(class_='form-control', placeholder='Date of Birth') }}
+            </div>
+        </div>
+    
+        <div class="form-section">
+            <h4>Address</h4>
+            <div class="form-group">
+                <label for="address">Street</label>
+                {{ form.address(class_='form-control', placeholder='Street') }}
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                {{ form.city(class_='form-control', placeholder='City') }}
+            </div>
+            <div class="form-group">
+                <label for="postcode">Postcode</label>
+                {{ form.postcode(class_='form-control', placeholder='Postcode') }}
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                {{ form.country(class_='form-control', placeholder='Country') }}
+            </div>
+        </div>
+    
+        <div class="form-section">
+            <h4>Vehicle Information</h4>
+            <div class="form-group">
+                <label for="car_model">Car Model</label>
+                {{ form.car_model(class_='form-control', placeholder='Car Model') }}
+            </div>
+            <div class="form-group">
+                <label for="car_reg">Car Registration Number</label>
+                {{ form.car_reg(class_='form-control', placeholder='Car Registration Number') }}
+            </div>
+            <div class="form-group">
+                <label for="policy_number">Policy Number</label>
+                {{ form.policy_number(class_='form-control', placeholder='Policy Number') }}
+            </div>
+            <div class="form-group">
+                <label for="insurance_type">Insurance Type</label>
+                {{ form.insurance_type(class_='form-control') }}
+            </div>
+            <div class="form-group">
+                <label for="policy_start_date">Policy Start Date</label>
+                {{ form.policy_start_date(class_='form-control', placeholder='Policy Start Date') }}
+            </div>
+        </div>
+    
+        <div class="form-section">
+            <h4>Payment Information</h4>
+            <div class="form-group">
+                <label for="amount">Initial Amount</label>
+                {{ form.amount(class_='form-control', placeholder='Amount') }}
+            </div>
+            <div class="form-group">
+                <label for="card_name">Cardholder Name</label>
+                {{ form.card_name(class_='form-control', placeholder='Full Name') }}
+            </div>
+            <div class="form-group">
+                <label for="card_number">Card Number</label>
+                {{ form.card_number(class_='form-control', placeholder='1234 5678 8765 4321') }}
+            </div>
+            <div class="form-group">
+                <label for="exp_date">Expiry Date</label>
+                {{ form.exp_date(class_='form-control', placeholder='MM/YY') }}
+            </div>
+            <div class="form-group">
+                <label for="cvc">CVC</label>
+                {{ form.cvc(class_='form-control', placeholder='CVC') }}
+            </div>
+        </div>
+    
+        <div class="form-section">
+            <h4>Additional Information</h4>
+            <div class="form-group">
+                <label for="additional_info">Additional Information</label>
+                {{ form.additional_info(class_='form-control') }}
+            </div>
+        </div>
+    
+        <div class="text-center">
+            {{ form.submit(class_='btn btn-primary') }}
+        </div>
+    </form>
+    <div class="text-center">
+        <a href="{{ url_for('view_insurance') }}" class="btn btn-secondary">Back to Insurance List</a>
+    </div>
+    <footer class="pb-3 pt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h2 class="mb-4">About Us</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque facere laudantium magnam voluptatum autem. Amet aliquid nesciunt veritatis aliquam.</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h2 class="mb-4">Quick Links</h2>
+                    <ul class="list-unstyled">
+                        <li><a href="#about-section" class="smoothscroll">Terms</a></li>
+                        <li><a href="#about-section" class="smoothscroll">Policy</a></li>
+                        <li><a href="#about-section" class="smoothscroll">About Us</a></li>
+                        <li><a href="#services-section" class="smoothscroll">Services</a></li>
+                        <li><a href="#testimonials-section" class="smoothscroll">Testimonials</a></li>
+                        <li><a href="#contact-section" class="smoothscroll">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 text-center mb-4">
+                    <h2 class="mb-4">Follow Us</h2>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="row pt-5 text-center">
+                <div class="col-md-12">
+                    <div class="border-top pt-4 d-flex justify-content-between">
+                        <p>&copy; <script>document.write(new Date().getFullYear());</script> All rights reserved</p>
+                        <p>This project is developed by <span class="font-weight-bold">SLAYS</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

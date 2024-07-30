@@ -12,11 +12,11 @@ with app.app_context():
     from werkzeug.security import generate_password_hash
 
     # Add a test admin user
-    admin = User(username='admin', email='admin@slys.com', password=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True)
+    admin = User(username='admin', email='admin@slys.com', password=generate_password_hash('admin123', method='pbkdf2:sha256'), role='admin')
     db.session.add(admin)
 
     # Add a test normal user
-    user = User(username='user', email='user@example.com', password=generate_password_hash('user123', method='pbkdf2:sha256'), is_admin=False)
+    user = User(username='user', email='absaboor019@gmail.com', password=generate_password_hash('123', method='pbkdf2:sha256'), role='user')
     db.session.add(user)
 
     db.session.commit()

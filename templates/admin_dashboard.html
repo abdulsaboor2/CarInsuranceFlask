@@ -7,6 +7,42 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    
+      <header class="site-navbar bg-dark text-white py-3">
+              <div class="container">
+                  <div class="row align-items-center">
+                      <div class="col-6 col-xl-4">
+                          <h1 class="mb-0 site-logo">
+                              <a href="/" class="h2 mb-0 text-white">SLAYS Insurance Ltd<span class="text-primary">.</span></a>
+                          </h1>
+                      </div>
+                      <div class="col-12 col-xl-8">
+                          <nav class="navbar navbar-expand-xl navbar-dark">
+                              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                  <span class="navbar-toggler-icon"></span>
+                              </button>
+                              <div class="collapse navbar-collapse" id="navbarNav">
+                                  <ul class="navbar-nav ml-auto">
+                                      <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+                                      <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
+                                      <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                                      <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
+                                      <li class="nav-item"><a href="/insurance/new" class="nav-link">Apply for Insurance</a></li>
+                                      <li class="nav-item"><a href="/insurance" class="nav-link">View Insurance</a></li>
+                                      {% if current_user.is_authenticated %}
+                                          <li class="nav-item"><a href="/claim_policy" class="nav-link">Claim Policy</a></li>
+                                          <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+                                      {% else %}
+                                          <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
+                                          <li class="nav-item"><a href="/register" class="nav-link">Sign Up</a></li>
+                                      {% endif %}
+                                  </ul>
+                              </div>
+                          </nav>
+                      </div>
+                  </div>
+              </div>
+          </header>
     <h1>Admin Dashboard</h1>
 <h2>All Users</h2>
 <table class="table">
@@ -33,6 +69,41 @@
     </tbody>
 </table>
 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
-
+<footer class="pb-3 pt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h2 class="mb-4">About Us</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque facere laudantium magnam voluptatum autem. Amet aliquid nesciunt veritatis aliquam.</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h2 class="mb-4">Quick Links</h2>
+                    <ul class="list-unstyled">
+                        <li><a href="#about-section" class="smoothscroll">Terms</a></li>
+                        <li><a href="#about-section" class="smoothscroll">Policy</a></li>
+                        <li><a href="#about-section" class="smoothscroll">About Us</a></li>
+                        <li><a href="#services-section" class="smoothscroll">Services</a></li>
+                        <li><a href="#testimonials-section" class="smoothscroll">Testimonials</a></li>
+                        <li><a href="#contact-section" class="smoothscroll">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 text-center mb-4">
+                    <h2 class="mb-4">Follow Us</h2>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="mx-2 text-warning"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="row pt-5 text-center">
+                <div class="col-md-12">
+                    <div class="border-top pt-4 d-flex justify-content-between">
+                        <p>&copy; <script>document.write(new Date().getFullYear());</script> All rights reserved</p>
+                        <p>This project is developed by <span class="font-weight-bold">SLAYS</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

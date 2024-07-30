@@ -10,7 +10,6 @@
 </head>
 
 <body>
-  <!-- partial:index.partial.html -->
   <div id="svg_wrap"></div>
   {% include 'alert/alert.html' %}
   <form action="{% url 'create_account' %}" method="post">
@@ -23,12 +22,6 @@
       <input type="text" name="email" placeholder="Email" />
       <input type="text" name="phone" placeholder="Phone" />
       <input type="date" name="dob" placeholder="Date of Birth" />
-      <!-- <select name="type" placeholder="Account Type" style="padding: 12px 16px; border: 1px solid rgb(190, 184, 184); border-radius: 5px; width: 100%;">
-        <option value="regular">Regular</option>
-        <option value="student">Student</option>
-        <option value="saving">Saving</option>
-        <option value="freelance">Freelance</option>
-      </select> -->
     </section>
 
     <section>
@@ -71,14 +64,6 @@
       <input type="password" name="password1" placeholder="Strong Password" />
       <input type="password" name="password2" placeholder="Confirm Password" />
     </section>
-
-    
-
-    <!-- <section>
-  <p>Application</p>
-  <input type="text" placeholder="Preferred entrance date" />
-  <input type="text" placeholder="Number of people" />
-</section> -->
 
     <section>
       <p>General condtitions</p>
