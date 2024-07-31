@@ -16,7 +16,7 @@ with app.app_context():
     db.session.add(admin)
 
     # Add a test normal user
-    user = User(username='user', email='absaboor019@gmail.com', password=generate_password_hash('123', method='pbkdf2:sha256'), role='user')
+    user = User(username='absaboor019', email='absaboor019@gmail.com', password=generate_password_hash('123', method='pbkdf2:sha256'), role='user')
     db.session.add(user)
 
     db.session.commit()

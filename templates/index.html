@@ -373,11 +373,9 @@
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ml-auto">
                                 <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
-                                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
-                                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
-                                <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
+                                <li class="nav-item"><a href="#about-section" class="nav-link">About Us</a></li>
+                                <li class="nav-item"><a href="#contact-section" class="nav-link">Contact</a></li>
                                 <li class="nav-item"><a href="/insurance/new" class="nav-link">Apply for Insurance</a></li>
-                                <li class="nav-item"><a href="/insurance" class="nav-link">View Insurance</a></li>
                                 {% if current_user.is_authenticated %}
                                     <li class="nav-item"><a href="/claim_policy" class="nav-link">Claim Policy</a></li>
                                     <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
@@ -726,15 +724,15 @@
             <div class="row contact-info text-center">
                 <div class="col-md-4 mb-4">
                     <i class="fas fa-map-marker-alt"></i>
-                    <p><span>203 Fake St. Mountain View, San Francisco, California, USA</span></p>
+                    <p><span>Carmine Court, 202 Imperial Drive, Harrow, (HA2 7HG), United Kingdom</span></p>
                 </div>
                 <div class="col-md-4 mb-4">
                     <i class="fas fa-phone-alt"></i>
-                    <p><a href="tel:+44 7466 323532">+44 7466 323532</a></p>
+                    <p><a href="tel:+442038706666">+44 (0) 2038706666</a></p>
                 </div>
                 <div class="col-md-4 mb-4">
                     <i class="fas fa-envelope"></i>
-                    <p><a href="mailto:youremail@domain.com">info@slysinsuraneltd.com</a></p>
+                    <p><a href="mailto:info@slaysinsuraneltd.com">info@slaysinsuraneltd.com</a></p>
                 </div>
             </div>
             <form id="contactForm" method="POST" action="{{ url_for('index') }}">

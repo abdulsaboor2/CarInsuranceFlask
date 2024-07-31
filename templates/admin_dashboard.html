@@ -160,9 +160,6 @@ main {
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ml-auto">
                                 <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
-                                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
-                                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
-                                <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
                                 <li class="nav-item"><a href="/insurance/new" class="nav-link">Apply for Insurance</a></li>
                                 <li class="nav-item"><a href="/insurance" class="nav-link">View Insurance</a></li>
                                 {% if current_user.is_authenticated %}
@@ -190,18 +187,28 @@ main {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_claims') }}">
+                            <a class="nav-link" href="http://127.0.0.1:5000/admin/insuranceclaim/">
                                 Manage Claims
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_users') }}">
+                            <a class="nav-link" href="http://127.0.0.1:5000/admin/user/">
                                 Manage Users
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('view_reports') }}">
+                            <a class="nav-link" href="http://127.0.0.1:5000/admin/incidentreport/">
                                 Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="http://127.0.0.1:5000/admin/contact/">
+                                Contacts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                Logout
                             </a>
                         </li>
                     </ul>
@@ -211,7 +218,7 @@ main {
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 <h1 class="mb-4">Admin Dashboard</h1>
                 <div class="row">
-                    <!-- Widgets -->
+                   
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-body">
@@ -220,7 +227,6 @@ main {
                             </div>
                         </div>
                     </div>
-                    <!-- More widgets as needed -->
                 </div>
 
                 <div class="row">
@@ -246,7 +252,7 @@ main {
                                         <td>{{ claim.status }}</td>
                                         <td>{{ claim.date_submitted.strftime('%Y-%m-%d') }}</td>
                                         <td>
-                                            <a href="{{ url_for('view_claim', claim_id=claim.id) }}" class="btn btn-info btn-sm">View</a>
+                                            <a href="{{ url_for('update_insurance', insurance_id=claim.id) }}" class="btn btn-primary btn-sm">View</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

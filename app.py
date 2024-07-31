@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort, render_template, redirect, url_for, flash
+from flask import Flask, request, jsonify, abort, render_template, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_restful import Api, Resource
@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import secrets 
 from flask_wtf import FlaskForm, CSRFProtect
 from flask_admin import Admin
+from flask_admin.base import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField, IntegerField, TimeField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Regexp, ValidationError
@@ -39,7 +40,6 @@ login_manager.login_message_category = 'info'
 login_manager.login_view = 'login'
 
 
-
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -50,6 +50,7 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
 
 class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,26 +113,6 @@ class IncidentReport(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Flask-RESTful Resource for Users
-class UserResource(Resource):
-    def get(self, user_id=None):
-        if user_id:
-            user = User.query.get_or_404(user_id)
-            return jsonify({
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'is_admin': user.is_admin
-            })
-        else:
-            users = User.query.all()
-            return jsonify([{
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'is_admin': user.is_admin
-            } for user in users])
-
 class Insurance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     insurance_type = db.Column(db.String(50), nullable=False)
@@ -145,6 +126,7 @@ class Insurance(db.Model):
 
     def __repr__(self):
         return f'<Insurance {self.id}>'
+    
     def post(self):
         data = request.get_json()
         hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
@@ -182,169 +164,52 @@ class Insurance(db.Model):
         db.session.delete(user)
         db.session.commit()
         return jsonify({'message': 'User deleted successfully'})
+    
+# API Resources
+class UserResource(Resource):
+    def get(self, user_id):
+        user = User.query.get_or_404(user_id)
+        return jsonify({'id': user.id, 'username': user.username, 'email': user.email, 'role': user.role})
 
-class InsuranceClaimResource(Resource):
-    @login_required
-    def get(self, claim_id=None):
-        if claim_id:
-            claim = InsuranceClaim.query.get_or_404(claim_id)
-            return jsonify({
-                'id': claim.id,
-                'user_id': claim.user_id,
-                'name': claim.name,
-                'dln': claim.dln,
-                'email': claim.email,
-                'phone': claim.phone,
-                'dob': claim.dob,
-                'address': claim.address,
-                'city': claim.city,
-                'postcode': claim.postcode,
-                'country': claim.country,
-                'car_model': claim.car_model,
-                'car_reg': claim.car_reg,
-                'policy_number': claim.policy_number,
-                'insurance_type': claim.insurance_type,
-                'policy_start_date': claim.policy_start_date,
-                'amount': claim.amount,
-                'card_name': claim.card_name,
-                'card_number': claim.card_number,
-                'exp_date': claim.exp_date,
-                'cvc': claim.cvc,
-                'additional_info': claim.additional_info
-            })
-        else:
-            claims = InsuranceClaim.query.filter_by(user_id=current_user.id).all()
-            return jsonify([{
-                'id': claim.id,
-                'user_id': claim.user_id,
-                'name': claim.name,
-                'dln': claim.dln,
-                'email': claim.email,
-                'phone': claim.phone,
-                'dob': claim.dob,
-                'address': claim.address,
-                'city': claim.city,
-                'postcode': claim.postcode,
-                'country': claim.country,
-                'car_model': claim.car_model,
-                'car_reg': claim.car_reg,
-                'policy_number': claim.policy_number,
-                'insurance_type': claim.insurance_type,
-                'policy_start_date': claim.policy_start_date,
-                'amount': claim.amount,
-                'card_name': claim.card_name,
-                'card_number': claim.card_number,
-                'exp_date': claim.exp_date,
-                'cvc': claim.cvc,
-                'additional_info': claim.additional_info
-            } for claim in claims])
+    def delete(self, user_id):
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        return '', 204
+
+class UserListResource(Resource):
+    def get(self):
+        users = User.query.all()
+        return jsonify([{'id': user.id, 'username': user.username, 'email': user.email, 'role': user.role} for user in users])
 
     def post(self):
         data = request.get_json()
-        new_claim = InsuranceClaim(
-            user_id=current_user.id,
-            name=data['name'],
-            dln=data['dln'],
-            email=data['email'],
-            phone=data['phone'],
-            dob=data['dob'],
-            address=data['address'],
-            city=data['city'],
-            postcode=data['postcode'],
-            country=data['country'],
-            car_model=data['car_model'],
-            car_reg=data['car_reg'],
-            policy_number=data['policy_number'],
-            insurance_type=data['insurance_type'],
-            policy_start_date=data['policy_start_date'],
-            amount=data['amount'],
-            card_name=data['card_name'],
-            card_number=data['card_number'],
-            exp_date=data['exp_date'],
-            cvc=data['cvc'],
-            additional_info=data.get('additional_info')
-        )
-        db.session.add(new_claim)
-        db.session.commit()
-        return jsonify({
-            'id': new_claim.id,
-            'user_id': new_claim.user_id,
-            'name': new_claim.name,
-            'dln': new_claim.dln,
-            'email': new_claim.email,
-            'phone': new_claim.phone,
-            'dob': new_claim.dob,
-            'address': new_claim.address,
-            'city': new_claim.city,
-            'postcode': new_claim.postcode,
-            'country': new_claim.country,
-            'car_model': new_claim.car_model,
-            'car_reg': new_claim.car_reg,
-            'policy_number': new_claim.policy_number,
-            'insurance_type': new_claim.insurance_type,
-            'policy_start_date': new_claim.policy_start_date,
-            'amount': new_claim.amount,
-            'card_name': new_claim.card_name,
-            'card_number': new_claim.card_number,
-            'exp_date': new_claim.exp_date,
-            'cvc': new_claim.cvc,
-            'additional_info': new_claim.additional_info
-        })
+        print(f"Received data: {data}")  # Log received data
 
-    def put(self, claim_id):
-        data = request.get_json()
+        if 'username' not in data or 'email' not in data or 'password' not in data:
+            abort(400, "Must include username, email, and password fields")
+
+        try:
+            hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
+            new_user = User(username=data['username'], email=data['email'], password=hashed_password, role=data.get('role', 'user'))
+            db.session.add(new_user)
+            db.session.commit()
+            return jsonify({'id': new_user.id, 'username': new_user.username, 'email': new_user.email, 'role': new_user.role}), 201
+        except Exception as e:
+            print(f"Error: {e}")  # Log the error
+            abort(500, "Internal Server Error")
+
+
+class InsuranceClaimResource(Resource):
+    def get(self, claim_id):
         claim = InsuranceClaim.query.get_or_404(claim_id)
-        if claim.user_id != current_user.id and not current_user.is_admin:
-            abort(403)
-        if 'name' in data:
-            claim.name = data['name']
-        if 'dln' in data:
-            claim.dln = data['dln']
-        if 'email' in data:
-            claim.email = data['email']
-        if 'phone' in data:
-            claim.phone = data['phone']
-        if 'dob' in data:
-            claim.dob = data['dob']
-        if 'address' in data:
-            claim.address = data['address']
-        if 'city' in data:
-            claim.city = data['city']
-        if 'postcode' in data:
-            claim.postcode = data['postcode']
-        if 'country' in data:
-            claim.country = data['country']
-        if 'car_model' in data:
-            claim.car_model = data['car_model']
-        if 'car_reg' in data:
-            claim.car_reg = data['car_reg']
-        if 'policy_number' in data:
-            claim.policy_number = data['policy_number']
-        if 'insurance_type' in data:
-            claim.insurance_type = data['insurance_type']
-        if 'policy_start_date' in data:
-            claim.policy_start_date = data['policy_start_date']
-        if 'amount' in data:
-            claim.amount = data['amount']
-        if 'card_name' in data:
-            claim.card_name = data['card_name']
-        if 'card_number' in data:
-            claim.card_number = data['card_number']
-        if 'exp_date' in data:
-            claim.exp_date = data['exp_date']
-        if 'cvc' in data:
-            claim.cvc = data['cvc']
-        if 'additional_info' in data:
-            claim.additional_info = data['additional_info']
-        db.session.commit()
         return jsonify({
             'id': claim.id,
-            'user_id': claim.user_id,
             'name': claim.name,
             'dln': claim.dln,
             'email': claim.email,
             'phone': claim.phone,
-            'dob': claim.dob,
+            'dob': claim.dob.strftime('%Y-%m-%d'),
             'address': claim.address,
             'city': claim.city,
             'postcode': claim.postcode,
@@ -353,48 +218,206 @@ class InsuranceClaimResource(Resource):
             'car_reg': claim.car_reg,
             'policy_number': claim.policy_number,
             'insurance_type': claim.insurance_type,
-            'policy_start_date': claim.policy_start_date,
+            'policy_start_date': claim.policy_start_date.strftime('%Y-%m-%d'),
             'amount': claim.amount,
             'card_name': claim.card_name,
             'card_number': claim.card_number,
-            'exp_date': claim.exp_date,
+            'exp_date': claim.exp_date.strftime('%Y-%m-%d'),
             'cvc': claim.cvc,
-            'additional_info': claim.additional_info
+            'additional_info': claim.additional_info,
+            'date_submitted': claim.date_submitted.strftime('%Y-%m-%d %H:%M:%S'),
+            'user_id': claim.user_id
         })
 
     def delete(self, claim_id):
         claim = InsuranceClaim.query.get_or_404(claim_id)
-        if claim.user_id != current_user.id and not current_user.is_admin:
-            abort(403)
         db.session.delete(claim)
         db.session.commit()
-        return jsonify({'message': 'Insurance claim deleted successfully'})
+        return '', 204
 
-class ContactResource(Resource):
-    def get(self, contact_id=None):
-        if contact_id:
-            contact = Contact.query.get_or_404(contact_id)
-            return jsonify({
-                'id': contact.id,
-                'first_name': contact.first_name,
-                'last_name': contact.last_name,
-                'email': contact.email,
-                'subject': contact.subject,
-                'message': contact.message
-            })
-        else:
-            contacts = Contact.query.all()
-            return jsonify([{
-                'id': contact.id,
-                'first_name': contact.first_name,
-                'last_name': contact.last_name,
-                'email': contact.email,
-                'subject': contact.subject,
-                'message': contact.message
-            } for contact in contacts])
+class InsuranceClaimListResource(Resource):
+    def get(self):
+        claims = InsuranceClaim.query.all()
+        return jsonify([{
+            'id': claim.id,
+            'name': claim.name,
+            'dln': claim.dln,
+            'email': claim.email,
+            'phone': claim.phone,
+            'dob': claim.dob.strftime('%Y-%m-%d'),
+            'address': claim.address,
+            'city': claim.city,
+            'postcode': claim.postcode,
+            'country': claim.country,
+            'car_model': claim.car_model,
+            'car_reg': claim.car_reg,
+            'policy_number': claim.policy_number,
+            'insurance_type': claim.insurance_type,
+            'policy_start_date': claim.policy_start_date.strftime('%Y-%m-%d'),
+            'amount': claim.amount,
+            'card_name': claim.card_name,
+            'card_number': claim.card_number,
+            'exp_date': claim.exp_date.strftime('%Y-%m-%d'),
+            'cvc': claim.cvc,
+            'additional_info': claim.additional_info,
+            'date_submitted': claim.date_submitted.strftime('%Y-%m-%d %H:%M:%S'),
+            'user_id': claim.user_id
+        } for claim in claims])
 
     def post(self):
         data = request.get_json()
+        required_fields = ['name', 'dln', 'email', 'phone', 'dob', 'address', 'city', 'postcode', 'country', 'car_model', 'car_reg', 'policy_number', 'insurance_type', 'policy_start_date', 'amount', 'card_name', 'card_number', 'exp_date', 'cvc', 'user_id']
+        if not all(field in data for field in required_fields):
+            abort(400, "Must include all required fields")
+        
+        new_claim = InsuranceClaim(
+            name=data['name'],
+            dln=data['dln'],
+            email=data['email'],
+            phone=data['phone'],
+            dob=datetime.strptime(data['dob'], '%Y-%m-%d'),
+            address=data['address'],
+            city=data['city'],
+            postcode=data['postcode'],
+            country=data['country'],
+            car_model=data['car_model'],
+            car_reg=data['car_reg'],
+            policy_number=data['policy_number'],
+            insurance_type=data['insurance_type'],
+            policy_start_date=datetime.strptime(data['policy_start_date'], '%Y-%m-%d'),
+            amount=data['amount'],
+            card_name=data['card_name'],
+            card_number=data['card_number'],
+            exp_date=datetime.strptime(data['exp_date'], '%Y-%m-%d'),
+            cvc=data['cvc'],
+            additional_info=data.get('additional_info', ''),
+            user_id=data['user_id']
+        )
+        db.session.add(new_claim)
+        db.session.commit()
+        return jsonify({
+            'id': new_claim.id,
+            'name': new_claim.name,
+            'dln': new_claim.dln,
+            'email': new_claim.email,
+            'phone': new_claim.phone,
+            'dob': new_claim.dob.strftime('%Y-%m-%d'),
+            'address': new_claim.address,
+            'city': new_claim.city,
+            'postcode': new_claim.postcode,
+            'country': new_claim.country,
+            'car_model': new_claim.car_model,
+            'car_reg': new_claim.car_reg,
+            'policy_number': new_claim.policy_number,
+            'insurance_type': new_claim.insurance_type,
+            'policy_start_date': new_claim.policy_start_date.strftime('%Y-%m-%d'),
+            'amount': new_claim.amount,
+            'card_name': new_claim.card_name,
+            'card_number': new_claim.card_number,
+            'exp_date': new_claim.exp_date.strftime('%Y-%m-%d'),
+            'cvc': new_claim.cvc,
+            'additional_info': new_claim.additional_info,
+            'date_submitted': new_claim.date_submitted.strftime('%Y-%m-%d %H:%M:%S'),
+            'user_id': new_claim.user_id
+        }), 201
+
+class IncidentReportResource(Resource):
+    def get(self, report_id):
+        report = IncidentReport.query.get_or_404(report_id)
+        return jsonify({
+            'id': report.id,
+            'user_id': report.user_id,
+            'incident_date': report.incident_date.strftime('%Y-%m-%d'),
+            'incident_time': report.incident_time.strftime('%H:%M:%S'),
+            'location': report.location,
+            'description': report.description,
+            'attachments': report.attachments,
+            'created_at': report.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    def delete(self, report_id):
+        report = IncidentReport.query.get_or_404(report_id)
+        db.session.delete(report)
+        db.session.commit()
+        return '', 204
+
+class IncidentReportListResource(Resource):
+    def get(self):
+        reports = IncidentReport.query.all()
+        return jsonify([{
+            'id': report.id,
+            'user_id': report.user_id,
+            'incident_date': report.incident_date.strftime('%Y-%m-%d'),
+            'incident_time': report.incident_time.strftime('%H:%M:%S'),
+            'location': report.location,
+            'description': report.description,
+            'attachments': report.attachments,
+            'created_at': report.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        } for report in reports])
+
+    def post(self):
+        data = request.get_json()
+        required_fields = ['user_id', 'incident_date', 'incident_time', 'location', 'description']
+        if not all(field in data for field in required_fields):
+            abort(400, "Must include all required fields")
+        
+        new_report = IncidentReport(
+            user_id=data['user_id'],
+            incident_date=datetime.strptime(data['incident_date'], '%Y-%m-%d'),
+            incident_time=datetime.strptime(data['incident_time'], '%H:%M:%S').time(),
+            location=data['location'],
+            description=data['description'],
+            attachments=data.get('attachments', '')
+        )
+        db.session.add(new_report)
+        db.session.commit()
+        return jsonify({
+            'id': new_report.id,
+            'user_id': new_report.user_id,
+            'incident_date': new_report.incident_date.strftime('%Y-%m-%d'),
+            'incident_time': new_report.incident_time.strftime('%H:%M:%S'),
+            'location': new_report.location,
+            'description': new_report.description,
+            'attachments': new_report.attachments,
+            'created_at': new_report.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        }), 201
+
+class ContactResource(Resource):
+    def get(self, contact_id):
+        contact = Contact.query.get_or_404(contact_id)
+        return jsonify({
+            'id': contact.id,
+            'first_name': contact.first_name,
+            'last_name': contact.last_name,
+            'email': contact.email,
+            'subject': contact.subject,
+            'message': contact.message
+        })
+
+    def delete(self, contact_id):
+        contact = Contact.query.get_or_404(contact_id)
+        db.session.delete(contact)
+        db.session.commit()
+        return '', 204
+
+class ContactListResource(Resource):
+    def get(self):
+        contacts = Contact.query.all()
+        return jsonify([{
+            'id': contact.id,
+            'first_name': contact.first_name,
+            'last_name': contact.last_name,
+            'email': contact.email,
+            'subject': contact.subject,
+            'message': contact.message
+        } for contact in contacts])
+
+    def post(self):
+        data = request.get_json()
+        required_fields = ['first_name', 'last_name', 'email', 'subject', 'message']
+        if not all(field in data for field in required_fields):
+            abort(400, "Must include all required fields")
+        
         new_contact = Contact(
             first_name=data['first_name'],
             last_name=data['last_name'],
@@ -411,36 +434,17 @@ class ContactResource(Resource):
             'email': new_contact.email,
             'subject': new_contact.subject,
             'message': new_contact.message
-        })
+        }), 201
 
-    def put(self, contact_id):
-        data = request.get_json()
-        contact = Contact.query.get_or_404(contact_id)
-        if 'first_name' in data:
-            contact.first_name = data['first_name']
-        if 'last_name' in data:
-            contact.last_name = data['last_name']
-        if 'email' in data:
-            contact.email = data['email']
-        if 'subject' in data:
-            contact.subject = data['subject']
-        if 'message' in data:
-            contact.message = data['message']
-        db.session.commit()
-        return jsonify({
-            'id': contact.id,
-            'first_name': contact.first_name,
-            'last_name': contact.last_name,
-            'email': contact.email,
-            'subject': contact.subject,
-            'message': contact.message
-        })
-
-    def delete(self, contact_id):
-        contact = Contact.query.get_or_404(contact_id)
-        db.session.delete(contact)
-        db.session.commit()
-        return jsonify({'message': 'Contact deleted successfully'})
+# Adding resources to API
+api.add_resource(UserListResource, '/users')
+api.add_resource(UserResource, '/users/<int:user_id>')
+api.add_resource(InsuranceClaimListResource, '/insurance-claims')
+api.add_resource(InsuranceClaimResource, '/insurance-claims/<int:claim_id>')
+api.add_resource(IncidentReportListResource, '/incident-reports')
+api.add_resource(IncidentReportResource, '/incident-reports/<int:report_id>')
+api.add_resource(ContactListResource, '/contacts')
+api.add_resource(ContactResource, '/contacts/<int:contact_id>')
     
 class InsuranceForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
@@ -606,8 +610,6 @@ def view_claim(claim_id):
     claim = InsuranceClaim.query.get_or_404(claim_id)
     return render_template('view_claim.html', claim=claim)
 
-
-
 @app.route('/customer_dashboard')
 @login_required
 def customer_dashboard():
@@ -636,20 +638,46 @@ class MyModelView(ModelView):
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login'))
-
-admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
+    
+admin = Admin(app, name='SLAYS Admin Dashboard', template_mode='bootstrap3')
 admin.add_view(MyModelView(Record, db.session))
 admin.add_view(MyModelView(Contact, db.session))
 admin.add_view(MyModelView(User, db.session))
 admin.add_view(MyModelView(InsuranceClaim, db.session))
 admin.add_view(MyModelView(IncidentReport, db.session))
 
-# Adding Resources to API
-api.add_resource(UserResource, '/users', '/users/<int:user_id>')
-api.add_resource(InsuranceClaimResource, '/insurance_claims', '/insurance_claims/<int:claim_id>')
-api.add_resource(ContactResource, '/contacts', '/contacts/<int:contact_id>')
-
-
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    
+    if not data or not data.get('username') or not data.get('email') or not data.get('password'):
+        return jsonify({'error': 'Missing data'}), 400
+    
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    
+    new_user = User(
+        username=data['username'],
+        email=data['email'],
+        password=hashed_password
+    )
+    
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+    return jsonify({
+        'message': 'User created successfully',
+        'user': {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'is_admin': new_user.is_admin,
+            'role': new_user.role
+        }
+    }), 201
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -673,11 +701,6 @@ def index():
 @app.route('/claim_policy')
 def claim_policy():
     return render_template('claim_policy.html')
-
-@app.route('/faq')
-def faq():
-    return render_template('faq.html')
-
 
 @app.route('/insurance/new', methods=['GET', 'POST'])
 @login_required
@@ -738,9 +761,6 @@ def view_insurance():
 def insurance_detail(form_id):
     insurance_form = InsuranceClaim.query.get_or_404(form_id)
     return render_template('insurance_detail.html', form=insurance_form)
-
-
-from datetime import datetime
 
 @app.route('/update_insurance/<int:insurance_id>', methods=['GET', 'POST'])
 @login_required
