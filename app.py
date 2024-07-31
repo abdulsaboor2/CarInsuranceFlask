@@ -7,20 +7,27 @@ import secrets
 from flask_wtf import FlaskForm, CSRFProtect
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, TextAreaField, DateField, SubmitField, SelectField, IntegerField, TimeField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Regexp, ValidationError
 from werkzeug.exceptions import HTTPException
 from flask_bcrypt import Bcrypt
 
 from datetime import datetime
 import logging
-
+from werkzeug.utils import secure_filename
+import os
+from flask_wtf.file import FileField, FileAllowed
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = secrets.token_hex(24)
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -79,12 +86,26 @@ class InsuranceClaim(db.Model):
     exp_date = db.Column(db.Date, nullable=False)
     cvc = db.Column(db.String(4), nullable=False)
     additional_info = db.Column(db.String(500))
+    date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Added user_id for relationship management
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f'<InsuranceClaim {self.id}>'
+
+class IncidentReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    incident_date = db.Column(db.Date, nullable=False)
+    incident_time = db.Column(db.Time, nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    attachments = db.Column(db.String(255))  # Store file paths or URLs to the attachments
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<IncidentReport {self.id}>'
 
 
 @login_manager.user_loader
@@ -444,6 +465,13 @@ class InsuranceForm(FlaskForm):
     additional_info = StringField('Additional Information', validators=[Length(max=500)])
     submit = SubmitField('Submit')
 
+class IncidentReportForm(FlaskForm):
+    incident_date = DateField('Date of Incident', format='%Y-%m-%d', validators=[DataRequired()])
+    incident_time = TimeField('Time of Incident', format='%H:%M', validators=[DataRequired()])
+    incident_location = StringField('Location of Incident', validators=[DataRequired()])
+    incident_description = TextAreaField('Description of Incident', validators=[DataRequired()])
+    attachments = FileField('Attachments', validators=[FileAllowed(['jpg', 'png', 'pdf'], 'Images and PDFs only!')])
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -538,8 +566,47 @@ def admin_dashboard():
     if current_user.role != 'admin':
         flash('Access denied!', 'danger')
         return redirect(url_for('login'))
-    users = User.query.all()
-    return render_template('admin_dashboard.html', users=users)
+    total_claims = InsuranceClaim.query.count()
+    recent_claims = InsuranceClaim.query.order_by(InsuranceClaim.date_submitted.desc()).limit(5).all()
+    return render_template('admin_dashboard.html', total_claims=total_claims, claims=recent_claims)
+
+@app.route('/manage_claims')
+@login_required
+def manage_claims():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('login'))
+    # Logic to display/manage claims
+    return render_template('manage_claims.html')
+
+@app.route('/manage_users')
+@login_required
+def manage_users():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('login'))
+    # Logic to manage users
+    return render_template('manage_users.html')
+
+@app.route('/view_reports')
+@login_required
+def view_reports():
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('login'))
+    # Logic to view reports
+    return render_template('view_reports.html')
+
+@app.route('/view_claim/<int:claim_id>')
+@login_required
+def view_claim(claim_id):
+    if current_user.role != 'admin':
+        flash('Access denied!', 'danger')
+        return redirect(url_for('login'))
+    claim = InsuranceClaim.query.get_or_404(claim_id)
+    return render_template('view_claim.html', claim=claim)
+
+
 
 @app.route('/customer_dashboard')
 @login_required
@@ -548,10 +615,19 @@ def customer_dashboard():
         flash('Access denied! Admins cannot access the customer dashboard.', 'danger')
         return redirect(url_for('admin_dashboard'))
 
+    # Fetch the latest insurance claim for the current user
+    insurance_claim = InsuranceClaim.query.filter_by(user_id=current_user.id).order_by(InsuranceClaim.id.desc()).first()
     claims = InsuranceClaim.query.filter_by(user_id=current_user.id).all()
-    form = InsuranceForm()  # Instantiate the form
+    incident_report = IncidentReport.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('customer_dashboard.html', user=current_user, claims=claims, form=form)
+    # Check if the user has an insurance claim
+    if not insurance_claim:
+        flash('No insurance data available.', 'warning')
+        insurance_claim = None
+
+    form = InsuranceForm()
+
+    return render_template('customer_dashboard.html', user=current_user, insurance_claim=insurance_claim, claims=claims, form=form, incident_report=incident_report)
 
 
 class MyModelView(ModelView):
@@ -564,8 +640,9 @@ class MyModelView(ModelView):
 admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
 admin.add_view(MyModelView(Record, db.session))
 admin.add_view(MyModelView(Contact, db.session))
-admin.add_view(MyModelView(User, db.session))  # Added User model to the admin view
-admin.add_view(MyModelView(InsuranceClaim, db.session))  # Updated to InsuranceClaim
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(InsuranceClaim, db.session))
+admin.add_view(MyModelView(IncidentReport, db.session))
 
 # Adding Resources to API
 api.add_resource(UserResource, '/users', '/users/<int:user_id>')
@@ -730,11 +807,6 @@ def update_insurance(insurance_id):
 
     return render_template('update_insurance.html', form=form, insurance=insurance)
 
-
-
-
-
-
 @app.route('/delete_insurance/<int:insurance_id>', methods=['POST'])
 @login_required
 def delete_insurance(insurance_id):
@@ -760,6 +832,59 @@ def delete_insurance(insurance_id):
 def policy_claim():
     return render_template('policy_claim.html')
 
+@app.route('/report_incident', methods=['GET', 'POST'])
+@login_required
+def report_incident():
+    form = IncidentReportForm()
+    if form.validate_on_submit():
+        incident_date = form.incident_date.data
+        incident_time = form.incident_time.data
+        location = form.incident_location.data
+        description = form.incident_description.data
+        
+        # Handle file uploads
+        files = request.files.getlist('attachments')
+        file_paths = []
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                
+                # Debugging line
+                print(f"File saved: {filename}")
+                
+                file_paths.append(filename)  # Store only the filename
+
+        # Debugging line
+        print(f"Attachments list: {file_paths}")
+        
+        attachments = ','.join(file_paths)  # Join filenames with comma
+
+        # Create a new incident report
+        new_incident = IncidentReport(
+            user_id=current_user.id,
+            incident_date=incident_date,
+            incident_time=incident_time,
+            location=location,
+            description=description,
+            attachments=attachments
+        )
+        
+        db.session.add(new_incident)
+        db.session.commit()
+        
+        flash('Incident reported successfully!', 'success')
+        return redirect(url_for('customer_dashboard'))
+
+    return render_template('report_incident.html', form=form)
+
+
+# Helper function to check file type
+def allowed_file(filename):
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
 @app.route('/update_profile', methods=['GET', 'POST'])
 @login_required
 def update_profile():
@@ -776,17 +901,11 @@ def update_profile():
         country = request.form.get('country')
         
         # Update the user's personal details
-        claim = InsuranceClaim.query.filter_by(id=current_user.id).first()
-        if claim:
-            claim.name = name
-            claim.dln = dln
-            claim.email = email
-            claim.phone = phone
-            claim.dob = dob
-            claim.address = address
-            claim.city = city
-            claim.postcode = postcode
-            claim.country = country
+        user = User.query.filter_by(id=current_user.id).first()
+        if user:
+            user.username = name  # Update as needed
+            user.email = email
+            # Handle other fields if necessary
             db.session.commit()
             flash('Profile updated successfully!', 'success')
         else:
@@ -795,8 +914,8 @@ def update_profile():
         return redirect(url_for('customer_dashboard'))
 
     # GET request: Render the update profile form
-    claim = InsuranceClaim.query.filter_by(id=current_user.id).first()
-    return render_template('update_profile.html', claim=claim)
+    user = User.query.filter_by(id=current_user.id).first()
+    return render_template('update_profile.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)
