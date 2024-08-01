@@ -937,5 +937,202 @@ def update_profile():
     user = User.query.filter_by(id=current_user.id).first()
     return render_template('update_profile.html', user=user)
 
+
+vehicles = [
+    {
+        "id": 1,
+        "make": "Ford",
+        "model": "Fiesta",
+        "year": 2018,
+        "owner_name": "John Doe",
+        "insurance_provider": "Direct Line",
+        "policy_number": "DL123456789",
+        "coverage_type": "Third-Party",
+        "premium": 450.00,
+        "start_date": "2023-01-15",
+        "end_date": "2024-01-14",
+        "image_url": "https://www.thecarexpert.co.uk/wp-content/uploads/2023/05/Ford-Fiesta-ST-2013-to-2017-1920x960.jpg"
+    },
+    {
+        "id": 2,
+        "make": "Toyota",
+        "model": "Camry",
+        "year": 2019,
+        "owner_name": "Jane Smith",
+        "insurance_provider": "GEICO",
+        "policy_number": "GEO987654321",
+        "coverage_type": "Third-Party, Fire and Theft",
+        "premium": 500.00,
+        "start_date": "2023-03-10",
+        "end_date": "2024-03-09",
+        "image_url": "https://scene7.toyota.eu/is/image/toyotaeurope/exterior-1_tcm-3060-1592401"
+    },
+    {
+        "id": 3,
+        "make": "BMW",
+        "model": "X5",
+        "year": 2020,
+        "owner_name": "Robert Johnson",
+        "insurance_provider": "State Farm",
+        "policy_number": "SF123654789",
+        "coverage_type": "Third-Party",
+        "premium": 600.00,
+        "start_date": "2023-05-05",
+        "end_date": "2024-05-04",
+        "image_url": "https://stimg.cardekho.com/images/carexteriorimages/930x620/BMW/X5-2023/10452/1688992642182/front-left-side-47.jpg?impolicy=resize&imwidth=420"
+    },
+    {
+        "id": 4,
+        "make": "Audi",
+        "model": "A4",
+        "year": 2021,
+        "owner_name": "Emily Davis",
+        "insurance_provider": "Allianz",
+        "policy_number": "ALZ456789123",
+        "coverage_type": "Comprehensive",
+        "premium": 700.00,
+        "start_date": "2023-06-20",
+        "end_date": "2024-06-19",
+        "image_url": "https://www.autocar.co.uk/sites/autocar.co.uk/files/audi-a4-rt-2015-0024_0.jpg"
+    },
+    {
+        "id": 5,
+        "make": "Mercedes-Benz",
+        "model": "C-Class",
+        "year": 2022,
+        "owner_name": "Michael Brown",
+        "insurance_provider": "AXA",
+        "policy_number": "AXA123456789",
+        "coverage_type": "Third-Party, Fire and Theft",
+        "premium": 750.00,
+        "start_date": "2023-08-15",
+        "end_date": "2024-08-14",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Mercedes-Benz_C_200_Avantgarde_%28W_205%29_%E2%80%93_Frontansicht%2C_26._April_2014%2C_D%C3%BCsseldorf.jpg"
+    },
+    {
+        "id": 6,
+        "make": "Honda",
+        "model": "Civic",
+        "year": 2018,
+        "owner_name": "Sarah Wilson",
+        "insurance_provider": "Liberty Mutual",
+        "policy_number": "LM123456789",
+        "coverage_type": "Comprehensive",
+        "premium": 400.00,
+        "start_date": "2023-07-10",
+        "end_date": "2024-07-09",
+        "image_url": "https://media.gq-magazine.co.uk/photos/5d13a3199fa6017e488394f8/16:9/w_2560%2Cc_limit/Honda-Civic-01GQ-6Mar17_b.jpg"
+    },
+    {
+        "id": 7,
+        "make": "Nissan",
+        "model": "Altima",
+        "year": 2019,
+        "owner_name": "David Miller",
+        "insurance_provider": "Zurich",
+        "policy_number": "ZUR987654321",
+        "coverage_type": "Third-Party, Fire and Theft",
+        "premium": 480.00,
+        "start_date": "2023-02-25",
+        "end_date": "2024-02-24",
+        "image_url": "https://www.cnet.com/a/img/resize/0ff95e5b630fa622eab78a6610643c48488cebd5/hub/2012/11/03/25b52d67-bb76-11e2-8a8e-0291187978f3/35524770-5.jpg?auto=webp&width=768"
+    },
+    {
+        "id": 8,
+        "make": "Tesla",
+        "model": "Model 3",
+        "year": 2020,
+        "owner_name": "Laura Martinez",
+        "insurance_provider": "Progressive",
+        "policy_number": "PRO123654789",
+        "coverage_type": "Third-Party",
+        "premium": 850.00,
+        "start_date": "2023-09-15",
+        "end_date": "2024-09-14",
+        "image_url": "https://ev-database.org/img/auto/Tesla_Model_3_2024/Tesla_Model_3_2024-01@2x.jpg"
+    },
+    {
+        "id": 9,
+        "make": "Hyundai",
+        "model": "Elantra",
+        "year": 2018,
+        "owner_name": "Daniel Anderson",
+        "insurance_provider": "Nationwide",
+        "policy_number": "NW123456789",
+        "coverage_type": "Third-Party",
+        "premium": 430.00,
+        "start_date": "2023-11-01",
+        "end_date": "2024-10-31",
+        "image_url": "https://hips.hearstapps.com/hmg-prod/images/2024-hyundai-elantra-limited-106-64ef85e2044f5.jpg"
+    },
+    {
+        "id": 10,
+        "make": "Volkswagen",
+        "model": "Passat",
+        "year": 2021,
+        "owner_name": "Emma Thomas",
+        "insurance_provider": "Farmers",
+        "policy_number": "FAR123456789",
+        "coverage_type": "Comprehensive",
+        "premium": 570.00,
+        "start_date": "2023-12-20",
+        "end_date": "2024-12-19",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/VW_Passat_CC_2.0_TDI_DSG_Reflexsilber.JPG/800px-VW_Passat_CC_2.0_TDI_DSG_Reflexsilber.JPG"
+    }
+    
+]
+
+
+@app.route('/vehicles', methods=['GET'])
+def get_vehicles():
+    return jsonify(vehicles)
+
+@app.route('/vehicles/<int:vehicle_id>', methods=['GET'])
+def get_vehicle(vehicle_id):
+    vehicle = next((v for v in vehicles if v['id'] == vehicle_id), None)
+    if vehicle is None:
+        abort(404, description="Vehicle not found")
+    return jsonify(vehicle)
+
+@app.route('/vehicles', methods=['POST'])
+def add_vehicle():
+    if not request.json or 'make' not in request.json:
+        abort(400, description="Bad request: 'make' is required")
+    new_vehicle = {
+        "id": vehicles[-1]['id'] + 1 if vehicles else 1,
+        "make": request.json['make'],
+        "model": request.json.get('model', ""),
+        "year": request.json.get('year', 0),
+        "owner_name": request.json.get('owner_name', ""),
+        "insurance_provider": request.json.get('insurance_provider', ""),
+        "policy_number": request.json.get('policy_number', ""),
+        "coverage_type": request.json.get('coverage_type', ""),
+        "premium": request.json.get('premium', 0.0),
+        "start_date": request.json.get('start_date', ""),
+        "end_date": request.json.get('end_date', ""),
+        "image_url": request.json.get('image_url', "")
+    }
+    vehicles.append(new_vehicle)
+    return jsonify(new_vehicle), 201
+
+@app.route('/vehicles/<int:vehicle_id>', methods=['PUT'])
+def update_vehicle(vehicle_id):
+    vehicle = next((v for v in vehicles if v['id'] == vehicle_id), None)
+    if not vehicle:
+        return jsonify({"error": "Vehicle not found"}), 404
+    if not request.json:
+        abort(400, description="Bad request: JSON body required")
+    data = request.json
+    for key, value in data.items():
+        if key in vehicle:
+            vehicle[key] = value
+    return jsonify(vehicle), 200
+
+@app.route('/vehicles/<int:vehicle_id>', methods=['DELETE'])
+def delete_vehicle(vehicle_id):
+    global vehicles
+    vehicles = [v for v in vehicles if v['id'] != vehicle_id]
+    return jsonify({"message": "Vehicle deleted"}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
