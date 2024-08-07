@@ -1,6 +1,7 @@
 # Car Insurance Company Web Application
 
 **Overview**
+
 This project is a full-featured web application designed for a Car Insurance Company, built using a modern tech stack focusing on robust functionality and user experience.
 
 **Tech Stack**
