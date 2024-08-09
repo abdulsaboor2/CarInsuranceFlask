@@ -5,12 +5,14 @@
 This project is a full-featured web application designed for a Car Insurance Company, built using a modern tech stack focusing on robust functionality and user experience.
 
 **Tech Stack**
+
 - Frontend: HTML, CSS, Bootstrap, Javascript
 - Backend: Python, Flask
 -  Database: SQLAlchemy
 -  API: RESTful
 
 **Features**
+
 + User Authentication and Authorization: Secure login and registration system with role-based access control.
 + Admin Dashboard: Easily manage insurance claims, incident reports, and user accounts.
 + Customer Dashboard: Users can manage insurance policies, report incidents, and update profiles.
@@ -19,6 +21,7 @@ This project is a full-featured web application designed for a Car Insurance Com
 + File Uploads: Secure handling of file uploads for incident report attachments.
 
 **Libraries and Tools**
+
 ```
 from flask import Flask, request, jsonify, abort, render_template, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
@@ -42,6 +45,7 @@ from flask_wtf.file import FileField, FileAllowed
 ```
 
 **Initial Configuration**
+
 ```
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -64,6 +68,7 @@ login_manager.login_view = 'login'
 ```
 
 **Database Models**
+
 ```
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -147,6 +152,7 @@ class Insurance(db.Model):
 ```
 
 **Flask Forms**
+
 ```
 class InsuranceForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
@@ -200,6 +206,7 @@ class ContactForm(FlaskForm):
 ```
 
 **Routes**
+
 + Authentication: `/login`, `/logout`, `/register`
 + Admin and Customer Dashboards: `/admin_dashboard`, `/customer_dashboard`
 + Insurance Management: `/insurance/new`, `/insurance`, `/update_insurance/<int:insurance_id>`, `/delete_insurance/<int:insurance_id>`
@@ -208,6 +215,7 @@ class ContactForm(FlaskForm):
 + RESTful API: `/vehicles`, `/insurance`, `/users`, `/contact`, `/incident_report`
 
 **RESTful API Endpoints**
+
 + Vehicles: CRUD operations for vehicle information.
 + Insurance: Manage insurance details.
 + Users: User management endpoints.
@@ -215,10 +223,96 @@ class ContactForm(FlaskForm):
 + Incident Report: Manage incident reports.
 
 **Setup and Installation**
+
 + Clone the repository.
 + Install dependencies: `pip install -r requirements.txt`
 + Initialize the database: `flask db init && flask db migrate && flask db upgrade`
 + Run the application: `flask run`
 
+
+## Interface
+
+**Home Page**
+
+![127 0 0 1_5000_ (1)](https://github.com/user-attachments/assets/48e003a8-f135-48cc-9e5e-aabce2a2d2f2)
+
+**Login Page**
+
+![127 0 0 1_5000_login](https://github.com/user-attachments/assets/7bb8eb5d-16b2-4df7-9561-178aa1c4bd73)
+
+**Register Page**
+
+![127 0 0 1_5000_register](https://github.com/user-attachments/assets/6a2d9ba0-ca19-45e4-810c-8eea5d53e520)
+
+**Customer Dashboard**
+
+![127 0 0 1_5000_customer_dashboard (1)](https://github.com/user-attachments/assets/8365c338-864c-42b1-bc9d-63589a3ed0eb)
+
+**Add Insurance**
+
+![127 0 0 1_5000_insurance_new](https://github.com/user-attachments/assets/6de4f8ae-eb5e-4cc3-8d6b-16bdb6ca226c)
+
+**Update Insurance**
+
+![127 0 0 1_5000_update_insurance_3](https://github.com/user-attachments/assets/c98a0a5d-a530-46d3-addb-541d9f6bb9ff)
+
+**Report Incident**
+
+![127 0 0 1_5000_report_incident (2)](https://github.com/user-attachments/assets/d351a43e-18ad-4310-8a41-b814d10d2483)
+
+**Claim Policy**
+
+![127 0 0 1_5000_claim_policy (2)](https://github.com/user-attachments/assets/e8948097-cb1d-48a3-a3c9-67b538330f90)
+
+**View All Registered Insurance**
+
+![127 0 0 1_5000_insurance (1)](https://github.com/user-attachments/assets/8d78a264-c2e3-40bc-9b28-823bd944680f)
+
+**Admin Panel**
+
+![127 0 0 1_5000_admin_dashboard (1)](https://github.com/user-attachments/assets/6fa70f5b-db6e-4077-b194-0bc49ab0b1d1)
+
+### Manage Database Record
+
+**Report Incident Table**
+
+![image](https://github.com/user-attachments/assets/7075894b-db05-46e2-9014-95f1004d1a8e)
+
+**Insurance Claim Table**
+
+![image](https://github.com/user-attachments/assets/b96d20d9-8c0c-473a-b334-94d0dce8de09)
+
+**Users Table**
+
+![image](https://github.com/user-attachments/assets/249c8e89-f3ce-4422-b593-6fc53b1733a8)
+
+**Contact Form Table**
+
+![image](https://github.com/user-attachments/assets/9b5ea52b-a107-402b-8212-64b15f4e09d3)
+
+## RESTful API
+
+**Users API**
+
+![image](https://github.com/user-attachments/assets/566dfa88-d145-4526-8ed1-d68f21dd11aa)
+
+**Contacts API**
+
+![image](https://github.com/user-attachments/assets/8342e84e-a429-4c73-baa6-3e290a855f45)
+
+**Vehicles API**
+
+![127 0 0 1_5000_vehicles](https://github.com/user-attachments/assets/a0107490-42d4-4b28-9ac4-a57875925699)
+
+**Insurance Claims API**
+
+![127 0 0 1_5000_insurance-claims](https://github.com/user-attachments/assets/818f0204-09da-4ea4-99be-87eb474d6ef5)
+
+**Report Incident API**
+
+![image](https://github.com/user-attachments/assets/4358e032-9cca-4262-af8c-e11a6e109506)
+
+
 **Contributions**
+
 Feel free to fork the repository and submit pull requests. Contributions are welcome!
